@@ -1,0 +1,32 @@
+name: Daily AI News Scraper
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 한국시간 오전 9시 (UTC 00:00)
+  workflow_dispatch:      # 우리가 수동으로 실행해볼 수 있는 버튼 생성
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 lxml pyshorteners
+
+      - name: Run Scraper
+        run: python news_rss.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update news report" || exit 0
+          git push
